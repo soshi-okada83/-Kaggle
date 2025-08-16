@@ -3,6 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 import os
+from sklearn import tree
 
 # データの読み込み
 dir_path = 'titanic'
@@ -85,5 +86,26 @@ y_train = train.Survived
 # 特徴量をX_trainに格納
 X_train = train.drop(columns=['Survived'])
 
-print(y_train)
-print(X_train)
+# 決定木モデルの準備
+model = tree.DecisionTreeClassifier()
+model.fit(X_train, y_train)
+
+# 作成した決定木モデルを使った予測を行う
+y_pred = model.predict(test)
+# print(y_pred)
+
+# テストデータと予測結果の大きさを確認する
+# print(len(test), len(y_pred))
+
+# 予測結果をテストデータに反映する
+test['Survived'] = y_pred
+# print(test.head())
+
+# 提出用データマートを作成する
+pred_df = test[['PassengerId', 'Survived']].set_index('PassengerId')
+
+# 予測結果を整数に変換する
+pred_df.Survived = pred_df.Survived.astype(int)
+
+# CSVの作成
+pred_df.to_csv('submission_v1.csv', index_label=['PassengerId'])
